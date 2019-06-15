@@ -1,0 +1,38 @@
+diff --git a/keras_cnn.py b/keras_cnn.py
+index 879d732..49cdb0e 100644
+--- a/keras_cnn.py
++++ b/keras_cnn.py
+@@ -6,6 +6,7 @@ from keras.utils import np_utils
+ from wandb.keras import WandbCallback
+ import wandb
+ import os
++import sys
+ 
+ run = wandb.init()
+ config = run.config
+@@ -30,7 +31,8 @@ X_train = X_train.reshape(
+     X_train.shape[0], config.img_width, config.img_height, 1)
+ X_test = X_test.reshape(
+     X_test.shape[0], config.img_width, config.img_height, 1)
+-
++print(X_train.shape)
++sys.exit(0)
+ # one hot encode outputs
+ y_train = np_utils.to_categorical(y_train)
+ y_test = np_utils.to_categorical(y_test)
+@@ -52,13 +54,13 @@ model.add(MaxPooling2D(pool_size=(2, 2)))
+ model.add(Dropout(0.4))
+ model.add(Flatten())
+ model.add(Dense(config.dense_layer_size, activation='relu'))
+-model.add(Dropout(0.4))
++#model.add(Dropout(0.4))
+ model.add(Dense(num_classes, activation='softmax'))
+ 
+ model.compile(loss='categorical_crossentropy', optimizer='adam',
+               metrics=['accuracy'])
+ model.summary()
+ 
+-model.fit(X_train, y_train, validation_data=(X_test, y_test),
++model.fit(X_train, y_train, batch_size=256, validation_data=(X_test, y_test),
+           epochs=config.epochs,
+           callbacks=[WandbCallback(data_type="image", save_model=False)])
